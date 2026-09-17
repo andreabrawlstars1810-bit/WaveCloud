@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WaveCloud — ta musique, partout</title>
+  <meta name="theme-color" content="#0b0b10">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">W</div>
+        <div><strong>WaveCloud</strong><span>Music library</span></div>
+      </div>
+
+      <nav>
+        <button class="nav-item active" data-view="home"><span>⌂</span> Accueil</button>
+        <button class="nav-item" data-view="library"><span>♫</span> Ma musique</button>
+        <button class="nav-item" data-view="favorites"><span>♥</span> Favoris</button>
+        <button class="nav-item" data-view="playlists"><span>☷</span> Playlists</button>
+        <button class="nav-item" data-view="equalizer"><span>≋</span> Égaliseur</button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="drive-card" id="driveCard">
+          <div class="drive-icon">G</div>
+          <div class="drive-copy">
+            <strong>Google Drive</strong>
+            <span id="driveStatus">Connexion requise</span>
+          </div>
+          <button class="mini-btn" id="driveBtn">Connecter</button>
+        </div>
+        <p class="storage-note">Tes fichiers audio restent dans ton propre Drive.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="search-wrap">
+          <span>⌕</span>
+          <input id="searchInput" placeholder="Rechercher un titre, artiste ou album…">
+        </div>
+        <div class="top-actions">
+          <button class="icon-btn" id="uploadBtn" title="Importer">＋</button>
+          <button class="profile" id="profileBtn">W</button>
+        </div>
+      </header>
+
+      <section id="content"></section>
+    </main>
+  </div>
+
+  <footer class="player">
+    <div class="now-playing">
+      <div class="cover small" id="playerCover">♪</div>
+      <div class="now-text">
+        <strong id="playerTitle">Aucun morceau</strong>
+        <span id="playerArtist">Choisis un titre pour commencer</span>
+      </div>
+      <button class="heart-btn" id="playerFav">♡</button>
+    </div>
+
+    <div class="transport">
+      <div class="transport-buttons">
+        <button class="control" id="prevBtn">⏮</button>
+        <button class="play-btn" id="playBtn">▶</button>
+        <button class="control" id="nextBtn">⏭</button>
+      </div>
+      <div class="progress-row">
+        <span id="currentTime">0:00</span>
+        <input type="range" id="progress" min="0" max="100" value="0">
+        <span id="duration">0:00</span>
+      </div>
+    </div>
+
+    <div class="player-tools">
+      <span>Vol.</span>
+      <input type="range" id="volume" min="0" max="1" step=".01" value=".85">
+      <button class="tool-btn" id="eqQuickBtn">≋</button>
+    </div>
+  </footer>
+
+  <div class="modal hidden" id="modal">
+    <div class="modal-card">
+      <button class="modal-close" id="modalClose">×</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <input type="file" id="fileInput" accept="audio/mpeg,audio/mp3,audio/*" multiple hidden>
+  <audio id="audio" preload="metadata"></audio>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

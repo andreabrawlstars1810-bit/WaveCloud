@@ -516,8 +516,8 @@ async function deleteTrack(id){
 
         await saveMeta();
 
-    render();
-    toast("Morceau supprimé.");
+        render();
+        toast("Morceau supprimé.");
   }catch(e){
     console.error(e);
     toast("Impossible de supprimer ce morceau.");

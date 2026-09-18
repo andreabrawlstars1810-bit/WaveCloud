@@ -525,15 +525,10 @@ async function deleteTrack(id){
       $("#playerFav").textContent="♡";
     }
 
-    saveMeta();
+    await saveMeta();
 
-    if(state.accessToken){
-      await uploadLibraryMeta();
-    }
-
-    render();
-    toast("Morceau supprimé.");
-
+render();
+toast("Morceau supprimé.");
   }catch(e){
     console.error(e);
     toast("Impossible de supprimer ce morceau.");

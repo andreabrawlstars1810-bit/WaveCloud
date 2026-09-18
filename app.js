@@ -739,8 +739,29 @@ async function downloadTrack(id){
   }catch(e){toast("Téléchargement impossible pour le moment.")}
 }
 document.addEventListener("click",e=>{
+
+  const deleteBtn=e.target.closest("[data-delete-track]");
+  if(deleteBtn){
+    e.preventDefault();
+    e.stopPropagation();
+    deleteTrack(deleteBtn.dataset.deleteTrack);
+    return;
+  }
+
+  const removePlaylist=e.target.closest("[data-remove-playlist]");
+  if(removePlaylist){
+    e.preventDefault();
+    e.stopPropagation();
+    removeTrackFromPlaylist(
+      removePlaylist.dataset.removePlaylist,
+      removePlaylist.dataset.playlist
+    );
+    return;
+  }
+
   const dl=e.target.closest("[data-download]");
   if(dl){
+    e.preventDefault();
     downloadTrack(dl.dataset.download);
     return;
   }
@@ -754,21 +775,6 @@ document.addEventListener("click",e=>{
   const fav=e.target.closest("[data-fav]");
   if(fav){
     toggleFav(fav.dataset.fav);
-    return;
-  }
-
-  const removePlaylist=e.target.closest("[data-remove-playlist]");
-  if(removePlaylist){
-    removeTrackFromPlaylist(
-      removePlaylist.dataset.removePlaylist,
-      removePlaylist.dataset.playlist
-    );
-    return;
-  }
-
-  const deleteBtn=e.target.closest("[data-delete-track]");
-  if(deleteBtn){
-    deleteTrack(deleteBtn.dataset.deleteTrack);
     return;
   }
 

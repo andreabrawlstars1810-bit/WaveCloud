@@ -185,15 +185,69 @@ function applyEq(){
   state.filters.bass.gain.value=state.eq.bass;state.filters.mid.gain.value=state.eq.mid;state.filters.treble.gain.value=state.eq.treble;
 }
 
-function playTrack(id) {
-  const t=state.tracks.find(x=>x.id===id); if(!t)return;
-  state.current=t; state.queue=state.queue.length?state.queue:state.tracks; state.queueIndex=Math.max(0,state.queue.findIndex(x=>x.id===id));
-  if(t.localFile){ audio.src=URL.createObjectURL(t.localFile); audio.dataset.objectUrl="1"; }
-  else if(t.driveFileId && state.accessToken){ audio.src=`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(t.driveFileId)}?alt=media`; audio.removeAttribute("data-object-url"); }
-  else { toast("Connecte Google Drive ou importe un fichier local."); return; }
-  audio.load(); audio.play().catch(()=>{});
-  $("#playerTitle").textContent=t.title;$("#playerArtist").textContent=t.artist;$("#playerFav").textContent=state.favorites.has(t.id)?"♥":"♡";
-  setupAudioGraph(); if(state.audioCtx?.state==="suspended")state.audioCtx.resume(); render();
+async function playTrack(id) {
+  const t=state.tracks.find(x=>x.id===id); 
+  if(!t)return;
+
+  state.current=t;
+  state.queue=state.queue.length?state.queue:state.tracks;
+  state.queueIndex=Math.max(0,state.queue.findIndex(x=>x.id===id));
+
+  try{
+    if(t.localFile){
+
+      if(audio.dataset.objectUrl){
+        URL.revokeObjectURL(audio.dataset.objectUrl);
+      }
+
+      const url=URL.createObjectURL(t.localFile);
+      audio.dataset.objectUrl=url;
+      audio.src=url;
+
+    }else if(t.driveFileId && state.accessToken){
+
+      const r=await driveFetch(
+        `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(t.driveFileId)}?alt=media`
+      );
+
+      if(!r.ok){
+        throw new Error("Drive audio download failed");
+      }
+
+      const blob=await r.blob();
+
+      if(audio.dataset.objectUrl){
+        URL.revokeObjectURL(audio.dataset.objectUrl);
+      }
+
+      const url=URL.createObjectURL(blob);
+      audio.dataset.objectUrl=url;
+      audio.src=url;
+
+    }else{
+      toast("Connecte Google Drive ou importe un fichier local.");
+      return;
+    }
+
+    audio.load();
+    audio.play().catch(()=>{});
+
+    $("#playerTitle").textContent=t.title;
+    $("#playerArtist").textContent=t.artist;
+    $("#playerFav").textContent=state.favorites.has(t.id)?"♥":"♡";
+
+    setupAudioGraph();
+
+    if(state.audioCtx?.state==="suspended"){
+      state.audioCtx.resume();
+    }
+
+    render();
+
+  }catch(e){
+    console.error(e);
+    toast("Impossible de lire ce morceau depuis Google Drive.");
+  }
 }
 function nextTrack(dir=1){
   if(!state.queue.length)return;

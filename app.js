@@ -448,10 +448,28 @@ async function deletePlaylist(id){
   }
 
   state.playlists=state.playlists.filter(p=>p.id!==id);
-  saveMeta();
-  state.view="playlists";
-  render();
-  toast("Playlist supprimée.");
+
+  localStorage.setItem(
+    "wavecloud_meta",
+    JSON.stringify({
+      favorites:[...state.favorites],
+      playlists:state.playlists
+    })
+  );
+
+  try{
+    if(state.accessToken){
+      await uploadLibraryMeta();
+    }
+
+    state.view="playlists";
+    render();
+    toast("Playlist supprimée.");
+
+  }catch(e){
+    console.error(e);
+    toast("Playlist supprimée localement, mais impossible de synchroniser Drive.");
+  }
 }
 
 async function deleteTrack(id){

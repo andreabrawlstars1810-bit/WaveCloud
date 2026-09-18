@@ -282,29 +282,80 @@ async function loadDriveLibrary(){
   localStorage.setItem("wavecloud_meta",JSON.stringify({favorites:[...state.favorites],playlists:state.playlists}));
 }
 
-function connectAccount(prompt = "consent"){
+function connectAccount(prompt = ""){
   const clientId = getClientId();
-  if(!clientId){openConfigModal();return}
+
+  if(!clientId){
+    openConfigModal();
+    return;
+  }
+
   if(!tokenClient){
-    tokenClient=google.accounts.oauth2.initTokenClient({
-      client_id:clientId,
-      scope:"https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
-      callback: async resp=>{
-        if(resp.error){toast("Connexion Google refusée.");return}
-        state.accessToken=resp.access_token;
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: clientId,
+      scope: "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+
+      callback: async resp => {
+        if(resp.error){
+          console.error("Google OAuth error:", resp);
+          $("#driveStatus").textContent = "Non connecté";
+          $("#driveBtn").textContent = "Connecter Drive";
+          toast("Reconnecte ton compte Google pour accéder à Drive.");
+          return;
+        }
+
+        state.accessToken = resp.access_token;
+
         try{
-          const r=await fetch("https://www.googleapis.com/oauth2/v3/userinfo",{headers:{Authorization:"Bearer "+state.accessToken}});
-          if(!r.ok)throw new Error("userinfo");
-          state.user=await r.json();
-          localStorage.setItem("wavecloud_user",JSON.stringify({sub:state.user.sub,name:state.user.name,email:state.user.email,picture:state.user.picture||""}));
+          const r = await fetch(
+            "https://www.googleapis.com/oauth2/v3/userinfo",
+            {
+              headers: {
+                Authorization: "Bearer " + state.accessToken
+              }
+            }
+          );
+
+          if(!r.ok) throw new Error("userinfo");
+
+          state.user = await r.json();
+
+          localStorage.setItem(
+            "wavecloud_user",
+            JSON.stringify({
+              sub: state.user.sub,
+              name: state.user.name,
+              email: state.user.email,
+              picture: state.user.picture || ""
+            })
+          );
+
+          $("#driveStatus").textContent = "Connecté";
+          $("#driveBtn").textContent = "Drive OK";
+
           updateAccountUI();
+
           await loadDriveLibrary();
-          toast("Bienvenue sur WaveCloud.");
+
+          toast("Google Drive connecté.");
           render();
-        }catch(e){console.error(e);toast("Impossible de charger ton compte.");}
+
+        }catch(e){
+          console.error(e);
+          $("#driveStatus").textContent = "Erreur Drive";
+          $("#driveBtn").textContent = "Réessayer";
+          toast("Impossible de charger ta bibliothèque Drive.");
+        }
+      },
+
+      error_callback: error => {
+        console.error("Google OAuth popup error:", error);
+        $("#driveStatus").textContent = "Non connecté";
+        $("#driveBtn").textContent = "Connecter Drive";
       }
     });
   }
+
   tokenClient.requestAccessToken({prompt});
 }
 function logoutAccount(){

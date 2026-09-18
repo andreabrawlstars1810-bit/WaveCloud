@@ -154,9 +154,9 @@ function trackList(tracks, playlistId=null) {
           ↓
         </button>
 
-        ${
+              ${
           playlistId
-          ? `<button class="small-action" data-remove-playlist="${t.id}" data-playlist="${playlistId}" title="Retirer de la playlist">−</button>`
+          ? `<button class="small-action" data-remove-playlist="${t.id}" data-playlist="${playlistId}" title="Retirer de la playlist">🗑️</button>`
           : `<button class="small-action" data-delete-track="${t.id}" title="Supprimer">🗑️</button>`
         }
       </div>

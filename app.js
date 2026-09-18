@@ -525,9 +525,18 @@ toast("Morceau supprimé.");
 }
 
 
-function saveMeta(){
-  localStorage.setItem("wavecloud_meta",JSON.stringify({favorites:[...state.favorites],playlists:state.playlists}));
-  if(state.accessToken) uploadLibraryMeta().catch(()=>{});
+async function saveMeta(){
+  localStorage.setItem(
+    "wavecloud_meta",
+    JSON.stringify({
+      favorites:[...state.favorites],
+      playlists:state.playlists
+    })
+  );
+
+  if(state.accessToken){
+    await uploadLibraryMeta();
+  }
 }
 function loadMeta(){
   try{const x=JSON.parse(localStorage.getItem("wavecloud_meta")||"{}");state.favorites=new Set(x.favorites||[]);state.playlists=x.playlists||[]}catch{}

@@ -299,6 +299,31 @@ function nextTrack(dir=1){
 audio.addEventListener("loadedmetadata",()=>{$("#duration").textContent=fmt(audio.duration); const t=state.tracks.find(x=>x.id===state.current?.id);if(t)t.duration=audio.duration});
 audio.addEventListener("timeupdate",()=>{if(audio.duration){$("#progress").value=(audio.currentTime/audio.duration)*100;$("#currentTime").textContent=fmt(audio.currentTime)}});
 audio.addEventListener("ended",()=>nextTrack(1));
+if ("mediaSession" in navigator) {
+  navigator.mediaSession.setActionHandler("play", () => {
+    audio.play();
+  });
+
+  navigator.mediaSession.setActionHandler("pause", () => {
+    audio.pause();
+  });
+
+  navigator.mediaSession.setActionHandler("previoustrack", () => {
+    nextTrack(-1);
+  });
+
+  navigator.mediaSession.setActionHandler("nexttrack", () => {
+    nextTrack(1);
+  });
+
+  audio.addEventListener("play", () => {
+    navigator.mediaSession.playbackState = "playing";
+  });
+
+  audio.addEventListener("pause", () => {
+    navigator.mediaSession.playbackState = "paused";
+  });
+}
 $("#playBtn").onclick=()=>{if(!state.current){if(state.tracks[0])playTrack(state.tracks[0].id);return} if(audio.paused){setupAudioGraph();audio.play();}else audio.pause()};
 audio.addEventListener("play",()=>$("#playBtn").textContent="Ⅱ");
 audio.addEventListener("pause",()=>$("#playBtn").textContent="▶");

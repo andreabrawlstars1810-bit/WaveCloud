@@ -463,7 +463,14 @@ async function deleteTrack(id){
   }
 
   try{
-    if(track.driveFileId && state.accessToken){
+
+    if(track.driveFileId){
+
+      if(!state.accessToken){
+        toast("Connecte Google Drive avant de supprimer ce morceau.");
+        return;
+      }
+
       const r=await driveFetch(
         `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(track.driveFileId)}`,
         {method:"DELETE"}
@@ -484,11 +491,28 @@ async function deleteTrack(id){
     if(state.current?.id===id){
       audio.pause();
       audio.removeAttribute("src");
+
+      if(audio.dataset.objectUrl){
+        URL.revokeObjectURL(audio.dataset.objectUrl);
+        delete audio.dataset.objectUrl;
+      }
+
       audio.load();
       state.current=null;
+      state.queue=[];
+      state.queueIndex=-1;
+
+      $("#playerTitle").textContent="Aucun morceau";
+      $("#playerArtist").textContent="Choisis un titre pour commencer";
+      $("#playerFav").textContent="♡";
     }
 
     saveMeta();
+
+    if(state.accessToken){
+      await uploadLibraryMeta();
+    }
+
     render();
     toast("Morceau supprimé.");
 
@@ -497,7 +521,6 @@ async function deleteTrack(id){
     toast("Impossible de supprimer ce morceau.");
   }
 }
-
 
 
 function saveMeta(){

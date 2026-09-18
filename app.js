@@ -430,6 +430,76 @@ function addTracksToPlaylist(playlistId){
     );
   };
 }
+function removeTrackFromPlaylist(trackId, playlistId){
+  const playlist=state.playlists.find(p=>p.id===playlistId);
+  if(!playlist)return;
+  playlist.trackIds=playlist.trackIds.filter(id=>id!==trackId);
+  saveMeta();
+  openPlaylist(playlistId);
+  toast("Morceau retiré de la playlist.");
+}
+
+async function deletePlaylist(id){
+  const playlist=state.playlists.find(p=>p.id===id);
+  if(!playlist)return;
+
+  if(!confirm(`Supprimer la playlist "${playlist.name}" ?`)){
+    return;
+  }
+
+  state.playlists=state.playlists.filter(p=>p.id!==id);
+  saveMeta();
+  state.view="playlists";
+  render();
+  toast("Playlist supprimée.");
+}
+
+async function deleteTrack(id){
+  const track=state.tracks.find(t=>t.id===id);
+  if(!track)return;
+
+  if(!confirm(`Supprimer "${track.title}" ?\n\nLe fichier sera également supprimé de Google Drive s'il y est stocké.`)){
+    return;
+  }
+
+  try{
+    if(track.driveFileId && state.accessToken){
+      const r=await driveFetch(
+        `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(track.driveFileId)}`,
+        {method:"DELETE"}
+      );
+
+      if(!r.ok){
+        throw new Error("Drive delete failed");
+      }
+    }
+
+    state.tracks=state.tracks.filter(t=>t.id!==id);
+    state.favorites.delete(id);
+
+    state.playlists.forEach(p=>{
+      p.trackIds=p.trackIds.filter(trackId=>trackId!==id);
+    });
+
+    if(state.current?.id===id){
+      audio.pause();
+      audio.removeAttribute("src");
+      audio.load();
+      state.current=null;
+    }
+
+    saveMeta();
+    render();
+    toast("Morceau supprimé.");
+
+  }catch(e){
+    console.error(e);
+    toast("Impossible de supprimer ce morceau.");
+  }
+}
+
+
+
 function saveMeta(){
   localStorage.setItem("wavecloud_meta",JSON.stringify({favorites:[...state.favorites],playlists:state.playlists}));
   if(state.accessToken) uploadLibraryMeta().catch(()=>{});

@@ -452,9 +452,8 @@ async function deletePlaylist(id){
   try{
     await saveMeta();
 
-    state.view="playlists";
     render();
-    toast("Playlist supprimée.");
+    toast("Morceau supprimé.");
 
   }catch(e){
     console.error(e);

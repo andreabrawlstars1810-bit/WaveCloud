@@ -514,10 +514,10 @@ async function deleteTrack(id){
       $("#playerFav").textContent="♡";
     }
 
-    await saveMeta();
+        await saveMeta();
 
-render();
-toast("Morceau supprimé.");
+    render();
+    toast("Morceau supprimé.");
   }catch(e){
     console.error(e);
     toast("Impossible de supprimer ce morceau.");
@@ -570,18 +570,84 @@ async function uploadToDrive(file){
 }
 async function uploadLibraryMeta(){
   if(!state.accessToken)return;
+
   const folder=await ensureDriveFolder();
-  const metadata={name:"wavecloud-library.json",mimeType:"application/json",parents:[folder]};
-  const content=JSON.stringify({favorites:[...state.favorites],playlists:state.playlists});
+
+  const metadata={
+    name:"wavecloud-library.json",
+    mimeType:"application/json",
+    parents:[folder]
+  };
+
+  const content=JSON.stringify({
+    favorites:[...state.favorites],
+    playlists:state.playlists
+  });
+
   let id=state.libraryFileId;
-  if(id){
-    const r=await driveFetch(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:content});
-    if(r.ok)return;
+
+  if(!id){
+    const q=encodeURIComponent(
+      `'${folder}' in parents and name = 'wavecloud-library.json' and trashed = false`
+    );
+
+    const r=await driveFetch(
+      `https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,modifiedTime)&orderBy=modifiedTime desc`
+    );
+
+    if(r.ok){
+      const d=await r.json();
+
+      if(d.files?.length){
+        id=d.files[0].id;
+        state.libraryFileId=id;
+      }
+    }
   }
+
+  if(id){
+    const r=await driveFetch(
+      `https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`,
+      {
+        method:"PATCH",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:content
+      }
+    );
+
+    if(r.ok)return;
+
+    state.libraryFileId=null;
+  }
+
   const boundary="meta_"+Date.now();
-  const body=new Blob([`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n`,JSON.stringify(metadata),`\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n`,content,`\r\n--${boundary}--`]);
-  const r=await driveFetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",{method:"POST",headers:{"Content-Type":`multipart/related; boundary=${boundary}`},body});
-  if(r.ok)state.libraryFileId=(await r.json()).id;
+
+  const body=new Blob([
+    `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n`,
+    JSON.stringify(metadata),
+    `\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n`,
+    content,
+    `\r\n--${boundary}--`
+  ]);
+
+  const r=await driveFetch(
+    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",
+    {
+      method:"POST",
+      headers:{
+        "Content-Type":`multipart/related; boundary=${boundary}`
+      },
+      body
+    }
+  );
+
+  if(!r.ok){
+    throw new Error("Impossible de sauvegarder les métadonnées Drive.");
+  }
+
+  state.libraryFileId=(await r.json()).id;
 }
 async function loadDriveLibrary(){
   const folder=await ensureDriveFolder();

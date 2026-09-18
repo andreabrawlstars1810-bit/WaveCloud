@@ -345,17 +345,25 @@ function openPlaylist(id){
       ＋ Ajouter des morceaux
     </button>
 
+    <button class="ghost" id="deletePlaylist" style="margin-left:8px">
+      🗑️ Supprimer la playlist
+    </button>
+
     <button class="ghost" id="backToPlaylists" style="margin-left:8px">
       ← Retour
     </button>
 
     <div style="margin-top:20px">
-      ${trackList(tracks)}
+      ${trackList(tracks,playlist.id)}
     </div>
   `;
 
   $("#addTracksToPlaylist").onclick=()=>{
     addTracksToPlaylist(playlist.id);
+  };
+
+  $("#deletePlaylist").onclick=()=>{
+    deletePlaylist(playlist.id);
   };
 
   $("#backToPlaylists").onclick=()=>{

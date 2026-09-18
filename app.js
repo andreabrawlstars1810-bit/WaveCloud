@@ -282,7 +282,7 @@ async function loadDriveLibrary(){
   localStorage.setItem("wavecloud_meta",JSON.stringify({favorites:[...state.favorites],playlists:state.playlists}));
 }
 
-function connectAccount(){
+function connectAccount(prompt = "consent"){
   const clientId = getClientId();
   if(!clientId){openConfigModal();return}
   if(!tokenClient){
@@ -305,7 +305,7 @@ function connectAccount(){
       }
     });
   }
-  tokenClient.requestAccessToken({prompt:"consent"});
+  tokenClient.requestAccessToken({prompt});
 }
 function logoutAccount(){
   state.accessToken=null; state.user=null; state.tracks=[]; state.current=null;
@@ -425,7 +425,7 @@ if(state.user && getClientId()){
   $("#driveBtn").textContent = "Connexion…";
 
   setTimeout(() => {
-    connectAccount();
+    connectAccount("");
   }, 500);
 }
 

@@ -640,10 +640,41 @@ async function downloadTrack(id){
   }catch(e){toast("Téléchargement impossible pour le moment.")}
 }
 document.addEventListener("click",e=>{
-  const dl=e.target.closest("[data-download]");if(dl){downloadTrack(dl.dataset.download);return}
-  const play=e.target.closest("[data-play]");if(play){playTrack(play.dataset.play);return}
-  const fav=e.target.closest("[data-fav]");if(fav){toggleFav(fav.dataset.fav);return}
-  const nav=e.target.closest(".nav-item");if(nav){if(!state.user){connectAccount();return}state.view=nav.dataset.view;render();return}
+  const dl=e.target.closest("[data-download]");
+  if(dl){
+    downloadTrack(dl.dataset.download);
+    return;
+  }
+
+  const play=e.target.closest("[data-play]");
+  if(play){
+    playTrack(play.dataset.play);
+    return;
+  }
+
+  const fav=e.target.closest("[data-fav]");
+  if(fav){
+    toggleFav(fav.dataset.fav);
+    return;
+  }
+
+  const playlist=e.target.closest("[data-pl]");
+  if(playlist){
+    openPlaylist(playlist.dataset.pl);
+    return;
+  }
+
+  const nav=e.target.closest(".nav-item");
+  if(nav){
+    if(!state.user){
+      connectAccount();
+      return;
+    }
+
+    state.view=nav.dataset.view;
+    render();
+    return;
+  }
 });
 $("#modalClose").onclick=()=>$("#modal").classList.add("hidden");
 

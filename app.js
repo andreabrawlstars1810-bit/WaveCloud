@@ -651,17 +651,64 @@ async function uploadLibraryMeta(){
 }
 async function loadDriveLibrary(){
   const folder=await ensureDriveFolder();
-  const q=encodeURIComponent(`'${folder}' in parents and trashed = false`);
-  const r=await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,mimeType,size)&orderBy=name`);
+
+  const q=encodeURIComponent(
+    `'${folder}' in parents and trashed = false`
+  );
+
+  const r=await driveFetch(
+    `https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,mimeType,size,modifiedTime)&orderBy=modifiedTime desc`
+  );
+
+  if(!r.ok){
+    throw new Error("Impossible de lire les fichiers Drive.");
+  }
+
   const d=await r.json();
-  const meta=d.files?.find(x=>x.name==="wavecloud-library.json");
+
+  const metaFiles=(d.files||[])
+    .filter(x=>x.name==="wavecloud-library.json")
+    .sort((a,b)=>new Date(b.modifiedTime||0)-new Date(a.modifiedTime||0));
+
+  const meta=metaFiles[0];
+
   if(meta){
     state.libraryFileId=meta.id;
-    const mr=await driveFetch(`https://www.googleapis.com/drive/v3/files/${meta.id}?alt=media`);
-    if(mr.ok){const x=await mr.json();state.favorites=new Set(x.favorites||[]);state.playlists=x.playlists||[]}
+
+    const mr=await driveFetch(
+      `https://www.googleapis.com/drive/v3/files/${meta.id}?alt=media`
+    );
+
+    if(mr.ok){
+      const x=await mr.json();
+
+      state.favorites=new Set(x.favorites||[]);
+      state.playlists=x.playlists||[];
+    }
+  }else{
+    state.libraryFileId=null;
   }
-  state.tracks=(d.files||[]).filter(x=>x.mimeType?.startsWith("audio/")).map(x=>({id:x.id,driveFileId:x.id,name:x.name,title:x.name.replace(/\.[^/.]+$/,""),artist:"Artiste inconnu",album:"Google Drive",size:+x.size||0,mimeType:x.mimeType}));
-  localStorage.setItem("wavecloud_meta",JSON.stringify({favorites:[...state.favorites],playlists:state.playlists}));
+
+  state.tracks=(d.files||[])
+    .filter(x=>x.mimeType?.startsWith("audio/"))
+    .map(x=>({
+      id:x.id,
+      driveFileId:x.id,
+      name:x.name,
+      title:x.name.replace(/\.[^/.]+$/,""),
+      artist:"Artiste inconnu",
+      album:"Google Drive",
+      size:+x.size||0,
+      mimeType:x.mimeType
+    }));
+
+  localStorage.setItem(
+    "wavecloud_meta",
+    JSON.stringify({
+      favorites:[...state.favorites],
+      playlists:state.playlists
+    })
+  );
 }
 
 function connectAccount(prompt = ""){

@@ -128,19 +128,40 @@ function renderHome(c) {
 function renderLibrary(c, tracks, title="Ma musique") {
   c.innerHTML=`<div class="hero"><div class="eyebrow">Bibliothèque</div><h1>${escapeHtml(title)}</h1><p>${tracks.length} morceau${tracks.length>1?"x":""}</p></div>${trackList(tracks)}`;
 }
-function trackList(tracks) {
-  if (!tracks.length) return `<div class="empty"><strong>Aucun morceau ici</strong>Importe des MP3 pour commencer.</div>`;
+function trackList(tracks, playlistId=null) {
+  if (!tracks.length) {
+    return `<div class="empty"><strong>Aucun morceau ici</strong>Importe des MP3 pour commencer.</div>`;
+  }
+
   return `<div class="track-list">${tracks.map((t,i)=>`
     <div class="track">
       <button class="track-cover" data-play="${t.id}">♪</button>
-      <div data-play="${t.id}" style="min-width:0"><div class="track-title">${escapeHtml(t.title)}</div><div class="track-artist">${escapeHtml(t.artist)}</div></div>
+
+      <div data-play="${t.id}" style="min-width:0">
+        <div class="track-title">${escapeHtml(t.title)}</div>
+        <div class="track-artist">${escapeHtml(t.artist)}</div>
+      </div>
+
       <div class="track-album">${escapeHtml(t.album||"")}</div>
       <div class="track-duration">${t.duration?fmt(t.duration):"—"}</div>
+
       <div class="row-actions">
-        <button class="small-action fav ${state.favorites.has(t.id)?"on":""}" data-fav="${t.id}">${state.favorites.has(t.id)?"♥":"♡"}</button>
-        <button class="small-action" data-download="${t.id}" title="Télécharger">↓</button>
+        <button class="small-action fav ${state.favorites.has(t.id)?"on":""}" data-fav="${t.id}">
+          ${state.favorites.has(t.id)?"♥":"♡"}
+        </button>
+
+        <button class="small-action" data-download="${t.id}" title="Télécharger">
+          ↓
+        </button>
+
+        ${
+          playlistId
+          ? `<button class="small-action" data-remove-playlist="${t.id}" data-playlist="${playlistId}" title="Retirer de la playlist">−</button>`
+          : `<button class="small-action" data-delete-track="${t.id}" title="Supprimer">🗑️</button>`
+        }
       </div>
-    </div>`).join("")}</div>`;
+    </div>
+  `).join("")}</div>`;
 }
 function renderPlaylists(c) {
   c.innerHTML=`

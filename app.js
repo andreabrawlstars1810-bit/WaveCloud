@@ -757,6 +757,21 @@ document.addEventListener("click",e=>{
     return;
   }
 
+  const removePlaylist=e.target.closest("[data-remove-playlist]");
+  if(removePlaylist){
+    removeTrackFromPlaylist(
+      removePlaylist.dataset.removePlaylist,
+      removePlaylist.dataset.playlist
+    );
+    return;
+  }
+
+  const deleteBtn=e.target.closest("[data-delete-track]");
+  if(deleteBtn){
+    deleteTrack(deleteBtn.dataset.deleteTrack);
+    return;
+  }
+
   const playlist=e.target.closest("[data-pl]");
   if(playlist){
     openPlaylist(playlist.dataset.pl);

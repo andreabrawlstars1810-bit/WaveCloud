@@ -143,11 +143,31 @@ function trackList(tracks) {
     </div>`).join("")}</div>`;
 }
 function renderPlaylists(c) {
-  c.innerHTML=`<div class="hero"><div class="eyebrow">Organisation</div><h1>Playlists</h1><p>Crée des collections à ton goût.</p></div>
-  <button class="primary" id="newPlaylist">＋ Nouvelle playlist</button>
-  <div class="playlist-grid" style="margin-top:16px">${state.playlists.map(p=>`
-    <button class="playlist-card" data-pl="${p.id}"><div class="playlist-art">♫</div><strong>${escapeHtml(p.name)}</strong><span>${p.trackIds.length} morceau${p.trackIds.length>1?"x":""}</span></button>`).join("")}</div>`;
+  c.innerHTML=`
+    <div class="hero">
+      <div class="eyebrow">Organisation</div>
+      <h1>Playlists</h1>
+      <p>Crée des collections à ton goût.</p>
+    </div>
+
+    <button class="primary" id="newPlaylist">＋ Nouvelle playlist</button>
+
+    <div class="playlist-grid" style="margin-top:16px">
+      ${state.playlists.map(p=>`
+        <button class="playlist-card" data-pl="${p.id}">
+          <div class="playlist-art">♫</div>
+          <strong>${escapeHtml(p.name)}</strong>
+          <span>${p.trackIds.length} morceau${p.trackIds.length>1?"x":""}</span>
+        </button>
+      `).join("")}
+    </div>
+  `;
+
   $("#newPlaylist").onclick=()=>createPlaylist();
+
+  $$(".playlist-card").forEach(b=>{
+    b.onclick=()=>openPlaylist(b.dataset.pl);
+  });
 }
 function renderEqualizer(c) {
   c.innerHTML=`<div class="hero"><div class="eyebrow">Audio</div><h1>Égaliseur</h1><p>Ajuste les basses, médiums et aigus pendant la lecture.</p></div>
@@ -269,8 +289,117 @@ $("#playerFav").onclick=()=>{if(state.current)toggleFav(state.current.id)};
 function toggleFav(id){state.favorites.has(id)?state.favorites.delete(id):state.favorites.add(id);saveMeta();render();if(state.current?.id===id)$("#playerFav").textContent=state.favorites.has(id)?"♥":"♡"}
 
 function createPlaylist(){
-  const name=prompt("Nom de la playlist :"); if(!name?.trim())return;
-  state.playlists.push({id:crypto.randomUUID(),name:name.trim(),trackIds:[]});saveMeta();render();
+  const name=prompt("Nom de la playlist :");
+
+  if(!name?.trim())return;
+
+  state.playlists.push({
+    id:crypto.randomUUID(),
+    name:name.trim(),
+    trackIds:[]
+  });
+
+  saveMeta();
+  render();
+}
+function openPlaylist(id){
+  const playlist=state.playlists.find(p=>p.id===id);
+
+  if(!playlist)return;
+
+  const tracks=playlist.trackIds
+    .map(trackId=>state.tracks.find(t=>t.id===trackId))
+    .filter(Boolean);
+
+  const c=$("#content");
+
+  c.innerHTML=`
+    <div class="hero">
+      <div class="eyebrow">Playlist</div>
+      <h1>${escapeHtml(playlist.name)}</h1>
+      <p>${tracks.length} morceau${tracks.length>1?"x":""}</p>
+    </div>
+
+    <button class="primary" id="addTracksToPlaylist">
+      ＋ Ajouter des morceaux
+    </button>
+
+    <button class="ghost" id="backToPlaylists" style="margin-left:8px">
+      ← Retour
+    </button>
+
+    <div style="margin-top:20px">
+      ${trackList(tracks)}
+    </div>
+  `;
+
+  $("#addTracksToPlaylist").onclick=()=>{
+    addTracksToPlaylist(playlist.id);
+  };
+
+  $("#backToPlaylists").onclick=()=>{
+    state.view="playlists";
+    render();
+  };
+}
+function addTracksToPlaylist(playlistId){
+  const playlist=state.playlists.find(p=>p.id===playlistId);
+
+  if(!playlist)return;
+
+  const available=state.tracks.filter(t=>!playlist.trackIds.includes(t.id));
+
+  if(!available.length){
+    toast("Tous tes morceaux sont déjà dans cette playlist.");
+    return;
+  }
+
+  $("#modalBody").innerHTML=`
+    <h2>Ajouter des morceaux</h2>
+
+    <div style="max-height:400px;overflow:auto">
+      ${available.map(t=>`
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)">
+          <input type="checkbox" value="${t.id}" class="playlist-track-check">
+          <div>
+            <div><b>${escapeHtml(t.title)}</b></div>
+            <div style="opacity:.7">${escapeHtml(t.artist)}</div>
+          </div>
+        </label>
+      `).join("")}
+    </div>
+
+    <div class="modal-actions">
+      <button class="mini-btn" id="cancelPlaylistAdd">Annuler</button>
+      <button class="primary" id="confirmPlaylistAdd">Ajouter</button>
+    </div>
+  `;
+
+  $("#modal").classList.remove("hidden");
+
+  $("#cancelPlaylistAdd").onclick=()=>{
+    $("#modal").classList.add("hidden");
+  };
+
+  $("#confirmPlaylistAdd").onclick=()=>{
+    const selected=$$(".playlist-track-check")
+      .filter(input=>input.checked)
+      .map(input=>input.value);
+
+    playlist.trackIds.push(...selected);
+
+    saveMeta();
+
+    $("#modal").classList.add("hidden");
+
+    openPlaylist(playlistId);
+
+    toast(
+      selected.length
+        ? `${selected.length} morceau${selected.length>1?"x":""} ajouté${selected.length>1?"s":""}.`
+        : "Aucun morceau sélectionné."
+    );
+  };
 }
 function saveMeta(){
   localStorage.setItem("wavecloud_meta",JSON.stringify({favorites:[...state.favorites],playlists:state.playlists}));

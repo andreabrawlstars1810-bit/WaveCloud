@@ -336,7 +336,7 @@ async function connectDrive(){
       }
     });
   }
-  tokenClient.requestAccessToken({prompt:"consent"});
+  tokenClient.requestAccessToken({prompt:""});
 }
 function openConfigModal(){
   const current = getClientId();
@@ -417,6 +417,16 @@ try {
   const savedUser = JSON.parse(localStorage.getItem("wavecloud_user") || "null");
   if(savedUser) state.user = savedUser;
 } catch {}
+
 updateAccountUI();
-if(state.user){ $("#driveStatus").textContent=getClientId()?"Session enregistrée":"Configuration requise"; $("#driveBtn").textContent=getClientId()?"Connexion":"Configurer"; }
+
+if(state.user && getClientId()){
+  $("#driveStatus").textContent = "Connexion à Drive…";
+  $("#driveBtn").textContent = "Connexion…";
+
+  setTimeout(() => {
+    connectAccount();
+  }, 500);
+}
+
 render();

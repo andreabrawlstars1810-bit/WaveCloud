@@ -276,7 +276,13 @@ async function playTrack(id) {
     $("#playerTitle").textContent=t.title;
     $("#playerArtist").textContent=t.artist;
     $("#playerFav").textContent=state.favorites.has(t.id)?"♥":"♡";
-
+if ("mediaSession" in navigator) {
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: t.title,
+    artist: t.artist,
+    album: t.album || "WaveCloud"
+  });
+}
     setupAudioGraph();
 
     if(state.audioCtx?.state==="suspended"){

@@ -373,11 +373,6 @@ if ("mediaSession" in navigator) {
     navigator.mediaSession.playbackState = "paused";
   });
 }
-
-  audio.addEventListener("pause", () => {
-    navigator.mediaSession.playbackState = "paused";
-  });
-}
 $("#playBtn").onclick=()=>{if(!state.current){if(state.tracks[0])playTrack(state.tracks[0].id);return} if(audio.paused){setupAudioGraph();audio.play();}else audio.pause()};
 audio.addEventListener("play",()=>$("#playBtn").textContent="Ⅱ");
 audio.addEventListener("pause",()=>$("#playBtn").textContent="▶");

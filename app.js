@@ -211,17 +211,42 @@ function renderEqualizer(c) {
     if(p!=="custom"){["bass","mid","treble"].forEach((k,i)=>{state.eq[k]=vals[i];$("#"+k+"Slider").value=vals[i];$("#"+k+"Val").textContent=`${vals[i]} dB`});applyEq()}
   };
 }
+function isMobileDevice(){
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
+
 function setupAudioGraph() {
+  if (isMobileDevice()) return;
   if (state.audioCtx) return;
+
   const Ctx=window.AudioContext||window.webkitAudioContext;
   if(!Ctx) return;
+
   state.audioCtx=new Ctx();
+
   state.source=state.audioCtx.createMediaElementSource(audio);
-  const bass=state.audioCtx.createBiquadFilter();bass.type="lowshelf";bass.frequency.value=180;
-  const mid=state.audioCtx.createBiquadFilter();mid.type="peaking";mid.frequency.value=1000;mid.Q.value=0.8;
-  const treble=state.audioCtx.createBiquadFilter();treble.type="highshelf";treble.frequency.value=5000;
+
+  const bass=state.audioCtx.createBiquadFilter();
+  bass.type="lowshelf";
+  bass.frequency.value=180;
+
+  const mid=state.audioCtx.createBiquadFilter();
+  mid.type="peaking";
+  mid.frequency.value=1000;
+  mid.Q.value=0.8;
+
+  const treble=state.audioCtx.createBiquadFilter();
+  treble.type="highshelf";
+  treble.frequency.value=5000;
+
   state.filters={bass,mid,treble};
-  state.source.connect(bass).connect(mid).connect(treble).connect(state.audioCtx.destination);
+
+  state.source
+    .connect(bass)
+    .connect(mid)
+    .connect(treble)
+    .connect(state.audioCtx.destination);
+
   applyEq();
 }
 function applyEq(){

@@ -20,9 +20,10 @@ nav{display:grid;gap:6px}.nav-item{background:transparent;text-align:left;paddin
 .player{position:fixed;bottom:0;left:255px;right:0;height:92px;background:rgba(11,12,17,.96);backdrop-filter:blur(16px);border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1.5fr 1fr;align-items:center;padding:0 22px;z-index:10}.now-playing{display:flex;align-items:center;gap:10px;min-width:0}.cover{background:linear-gradient(135deg,#2c2445,#151620);border-radius:10px;display:grid;place-items:center;color:#bcaeff}.cover.small{width:45px;height:45px;font-size:19px}.now-text{min-width:0}.now-text strong,.now-text span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.now-text strong{font-size:11px}.now-text span{font-size:9px;color:var(--muted);margin-top:3px}.heart-btn{background:transparent;color:#777b89;font-size:20px;margin-left:5px}.transport{max-width:550px;justify-self:center;width:100%}.transport-buttons{display:flex;justify-content:center;align-items:center;gap:18px;margin-bottom:7px}.control{background:transparent;color:#a3a7b4;font-size:15px}.play-btn{width:34px;height:34px;border-radius:50%;background:white;color:#090a0e;font-size:12px}.progress-row{display:grid;grid-template-columns:32px 1fr 32px;gap:8px;align-items:center;font-size:8px;color:#777b89}.player-tools{justify-self:end;display:flex;align-items:center;gap:8px;color:#777b89;font-size:9px}.player-tools input{width:85px}.tool-btn{background:transparent;color:#9b7bff;font-size:18px}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.68);display:grid;place-items:center;z-index:30;padding:20px}.modal.hidden{display:none}.modal-card{width:min(480px,100%);background:#111219;border:1px solid var(--line);border-radius:16px;padding:24px;position:relative}.modal-close{position:absolute;right:12px;top:10px;background:transparent;color:#777;font-size:22px}.modal-card h2{margin:0 0 8px;font-size:18px}.modal-card label{color:var(--text);font-size:11px;cursor:pointer}.modal-card label div{color:var(--text)}.modal-card label div div:last-child{color:var(--muted)}.modal-card p{color:var(--muted);font-size:11px;line-height:1.6}
 .toast{position:fixed;right:18px;bottom:110px;background:#191b24;border:1px solid var(--line);padding:11px 14px;border-radius:9px;font-size:10px;z-index:50}
-@media(max-width:1200px){
+@media(max-width:1000px){
   .sidebar{
     width:70px;
+    min-width:70px;
     padding:20px 9px;
     overflow:hidden;
   }
@@ -34,13 +35,16 @@ nav{display:grid;gap:6px}.nav-item{background:transparent;text-align:left;paddin
     overflow:hidden;
   }
 
-  .brand > div:last-child{
+  .brand strong,
+  .brand span{
     display:none !important;
   }
 
   .nav-item{
     font-size:0;
     justify-content:center;
+    padding-left:10px;
+    padding-right:10px;
   }
 
   .nav-item span{
@@ -63,7 +67,7 @@ nav{display:grid;gap:6px}.nav-item{background:transparent;text-align:left;paddin
   }
 
   .search-wrap{
-    width:min(540px,100%);
+    width:auto;
     flex:1;
     min-width:0;
   }
@@ -98,8 +102,40 @@ nav{display:grid;gap:6px}.nav-item{background:transparent;text-align:left;paddin
     grid-template-columns:1fr;
   }
 }
-@media(max-width:560px){#content{padding:24px 15px}.search-wrap{width:70%}.stats{grid-template-columns:1fr}.track{grid-template-columns:36px 1fr 38px}.track-duration{display:none}.player{padding:0 10px}.now-playing{max-width:145px}.transport-buttons{gap:12px}}
 
+@media(max-width:560px){
+  #content{
+    padding:24px 15px;
+  }
+
+  .search-wrap{
+    min-width:0;
+  }
+
+  .stats{
+    grid-template-columns:1fr;
+  }
+
+  .track{
+    grid-template-columns:36px 1fr 38px;
+  }
+
+  .track-duration{
+    display:none;
+  }
+
+  .player{
+    padding:0 10px;
+  }
+
+  .now-playing{
+    max-width:145px;
+  }
+
+  .transport-buttons{
+    gap:12px;
+  }
+}
 .login-screen{min-height:calc(100vh - 160px);display:grid;place-items:center;padding:30px}
 .login-card{width:min(430px,100%);background:linear-gradient(145deg,#14151d,#0e0f14);border:1px solid var(--line);border-radius:22px;padding:38px;text-align:center;box-shadow:0 25px 80px rgba(0,0,0,.35)}
 .login-logo{width:62px;height:62px;border-radius:18px;margin:0 auto 24px;background:linear-gradient(135deg,#b9a4ff,#704be8);display:grid;place-items:center;font-size:25px;font-weight:800}

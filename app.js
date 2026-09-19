@@ -232,10 +232,23 @@ async function playTrack(id) {
   const t=state.tracks.find(x=>x.id===id); 
   if(!t)return;
 
-  state.current=t;
-  state.queue=state.queue.length?state.queue:state.tracks;
-  state.queueIndex=Math.max(0,state.queue.findIndex(x=>x.id===id));
+    state.current=t;
 
+  if(state.currentPlaylistId){
+    const playlist=state.playlists.find(p=>p.id===state.currentPlaylistId);
+
+    if(playlist){
+      state.queue=playlist.trackIds
+        .map(trackId=>state.tracks.find(x=>x.id===trackId))
+        .filter(Boolean);
+    }else{
+      state.queue=state.tracks;
+    }
+  }else{
+    state.queue=state.tracks;
+  }
+
+  state.queueIndex=Math.max(0,state.queue.findIndex(x=>x.id===id));
   try{
     if(t.localFile){
 

@@ -1016,6 +1016,8 @@ try {
   if(savedUser) state.user = savedUser;
 } catch {}
 
+loadMeta();
+
 updateAccountUI();
 
 if(state.user && getClientId()){

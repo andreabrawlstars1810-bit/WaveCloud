@@ -919,9 +919,27 @@ $("#uploadBtn").onclick=()=>{ if(!state.user){connectAccount();return} $("#fileI
 $("#fileInput").onchange=e=>handleFiles(e.target.files);
 $("#searchInput").oninput=e=>{
   const q=e.target.value.toLowerCase().trim();
-  if(!q){render();return}
-  const filtered=state.tracks.filter(t=>(t.title+" "+t.artist+" "+t.album).toLowerCase().includes(q));
-  $("#content").innerHTML=`<div class="hero"><div class="eyebrow">Recherche</div><h1>Résultats</h1><p>${filtered.length} résultat${filtered.length>1?"s":""}</p></div>${trackList(filtered)}`;
+
+  if(!q){
+    state.currentPlaylistId=null;
+    render();
+    return;
+  }
+
+  state.currentPlaylistId=null;
+
+  const filtered=state.tracks.filter(t=>
+    (t.title+" "+t.artist+" "+t.album).toLowerCase().includes(q)
+  );
+
+  $("#content").innerHTML=`
+    <div class="hero">
+      <div class="eyebrow">Recherche</div>
+      <h1>Résultats</h1>
+      <p>${filtered.length} résultat${filtered.length>1?"s":""}</p>
+    </div>
+    ${trackList(filtered)}
+  `;
 };
 async function downloadTrack(id){
   const t=state.tracks.find(x=>x.id===id); if(!t)return;

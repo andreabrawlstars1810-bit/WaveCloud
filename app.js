@@ -361,6 +361,9 @@ function openPlaylist(id){
 
   if(!playlist)return;
 
+  state.view="playlist";
+  state.currentPlaylistId=id;
+
   const tracks=playlist.trackIds
     .map(trackId=>state.tracks.find(t=>t.id===trackId))
     .filter(Boolean);

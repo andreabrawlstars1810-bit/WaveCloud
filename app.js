@@ -64,10 +64,11 @@ function trackFromFile(file, id=null) {
 function render() {
   const c = $("#content");
   if (!state.user) return renderLogin(c);
-  if (state.view === "home") return renderHome(c);
+    if (state.view === "home") return renderHome(c);
   if (state.view === "library") return renderLibrary(c, state.tracks);
   if (state.view === "favorites") return renderLibrary(c, state.tracks.filter(t=>state.favorites.has(t.id)), "Favoris");
   if (state.view === "playlists") return renderPlaylists(c);
+  if (state.view === "playlist") return openPlaylist(state.currentPlaylistId);
   if (state.view === "equalizer") return renderEqualizer(c);
 }
 function renderLogin(c) {

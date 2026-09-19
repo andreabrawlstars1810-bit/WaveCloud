@@ -59,6 +59,17 @@ nav{display:grid;gap:6px}.nav-item{background:transparent;text-align:left;paddin
 
   .topbar{
     padding:0 16px;
+    gap:12px;
+  }
+
+  .search-wrap{
+    width:min(540px,100%);
+    flex:1;
+    min-width:0;
+  }
+
+  .top-actions{
+    flex-shrink:0;
   }
 
   .player{

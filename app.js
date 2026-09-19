@@ -304,8 +304,7 @@ if ("mediaSession" in navigator) {
       state.audioCtx.resume();
     }
 
-  }catch(e){
-  }catch(e){
+   }catch(e){
     console.error(e);
     toast("Impossible de lire ce morceau depuis Google Drive.");
   }

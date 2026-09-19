@@ -350,7 +350,7 @@ audio.addEventListener("timeupdate",()=>{if(audio.duration){$("#progress").value
 audio.addEventListener("ended",()=>nextTrack(1));
 if ("mediaSession" in navigator) {
   navigator.mediaSession.setActionHandler("play", () => {
-    audio.play();
+    audio.play().catch(err => console.error("Media Session play:", err));
   });
 
   navigator.mediaSession.setActionHandler("pause", () => {
@@ -368,6 +368,11 @@ if ("mediaSession" in navigator) {
   audio.addEventListener("play", () => {
     navigator.mediaSession.playbackState = "playing";
   });
+
+  audio.addEventListener("pause", () => {
+    navigator.mediaSession.playbackState = "paused";
+  });
+}
 
   audio.addEventListener("pause", () => {
     navigator.mediaSession.playbackState = "paused";

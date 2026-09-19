@@ -300,12 +300,11 @@ if ("mediaSession" in navigator) {
 }
     setupAudioGraph();
 
-    if(state.audioCtx?.state==="suspended"){
+       if(state.audioCtx?.state==="suspended"){
       state.audioCtx.resume();
     }
 
-    render();
-
+  }catch(e){
   }catch(e){
     console.error(e);
     toast("Impossible de lire ce morceau depuis Google Drive.");

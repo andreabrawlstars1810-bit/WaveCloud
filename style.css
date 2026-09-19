@@ -51,11 +51,17 @@ nav{display:grid;gap:6px}.nav-item{background:transparent;text-align:left;paddin
     font-size:18px;
   }
 
-  .drive-copy,
-  .mini-btn,
-  .storage-note{
-    display:none;
-  }
+  .drive-copy{
+  display:block;
+}
+
+.mini-btn{
+  display:block;
+}
+
+.storage-note{
+  display:none;
+}
 
   .drive-card{
     justify-content:center;

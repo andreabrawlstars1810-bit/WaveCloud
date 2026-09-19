@@ -312,8 +312,12 @@ async function playTrack(id) {
     }
 
     audio.load();
-    audio.play().catch(()=>{});
 
+try {
+  await audio.play();
+} catch(e) {
+  console.error("Lecture audio impossible :", e);
+}
     $("#playerTitle").textContent=t.title;
     $("#playerArtist").textContent=t.artist;
     $("#playerFav").textContent=state.favorites.has(t.id)?"♥":"♡";

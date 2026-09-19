@@ -128,6 +128,7 @@ function renderHome(c) {
   $$(".ghost").forEach(b=>b.onclick=()=>{state.view=b.dataset.view;render()});
 }
 function renderLibrary(c, tracks, title="Ma musique") {
+  state.currentPlaylistId=null;
   c.innerHTML=`<div class="hero"><div class="eyebrow">Bibliothèque</div><h1>${escapeHtml(title)}</h1><p>${tracks.length} morceau${tracks.length>1?"x":""}</p></div>${trackList(tracks)}`;
 }
 function trackList(tracks, playlistId=null) {
